@@ -12,9 +12,11 @@ from .routes_materials import router as materials_router
 app = FastAPI(title="CampusAI API", version="0.7.0")
 
 cors_origins = [item.strip() for item in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",") if item.strip()]
+cors_origin_regex = os.getenv("CORS_ORIGIN_REGEX", r"https://.*\\.vercel\\.app")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
+    allow_origin_regex=cors_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
