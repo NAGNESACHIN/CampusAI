@@ -10,8 +10,8 @@ const demoAssignments = [
 async function api(path, options = {}) {
   const token = localStorage.getItem("campusai_token");
   const headers = { ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }), ...(options.headers || {}) };
-  if (token) headers.Authorization = \`Bearer \${token}\`;
-  const response = await fetch(\`\${API_URL}\${path}\`, { ...options, headers });
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const response = await fetch(`${API_URL}${path}`, { ...options, headers });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.detail || data.message || "Something went wrong");
   return data;
@@ -90,7 +90,7 @@ function DashboardShell({ role, tab, setTab, onLogout, children }) {
 }
 
 function Header({ title, subtitle }) { return <header><div><div className="eyebrow">CAMPUSAI</div><h1>{title}</h1><p>{subtitle}</p></div><button className="avatar">CA</button></header>; }
-function Stat({icon,label,value,tone}) { return <div className="card stat"><div className={\`stat-icon \${tone||""}\`}>{icon}</div><small>{label}</small><strong>{value}</strong></div>; }
+function Stat({icon,label,value,tone}) { return <div className="card stat"><div className={`stat-icon ${tone||""}`}>{icon}</div><small>{label}</small><strong>{value}</strong></div>; }
 
 function StudentDashboard({ setTab }) {
   const [assignments, setAssignments] = useState(demoAssignments);
@@ -112,14 +112,14 @@ function Skeleton(){return <div className="skeleton-list"><i/><i/><i/></div>;}
 function StudentAssignments() {
   const [assignments,setAssignments]=useState(demoAssignments); const [message,setMessage]=useState("");
   useEffect(()=>{api("/api/assignments").then(d=>d.length&&setAssignments(d)).catch(()=>{});},[]);
-  const upload=async(a,e)=>{const file=e.target.files?.[0];if(!file)return;const fd=new FormData();fd.append("assignment_id",a.id);fd.append("file",file);try{await api("/api/submissions",{method:"POST",body:fd});setMessage(\`✓ \${file.name} submitted successfully\`);}catch(err){setMessage(err.message)}};
+  const upload=async(a,e)=>{const file=e.target.files?.[0];if(!file)return;const fd=new FormData();fd.append("assignment_id",a.id);fd.append("file",file);try{await api("/api/submissions",{method:"POST",body:fd});setMessage(`✓ ${file.name} submitted successfully`);}catch(err){setMessage(err.message)}};
   return <><Header title="My assignments" subtitle="Track deadlines and submit your work." />{message&&<div className="toast">{message}</div>}<section className="card section"><div className="section-head"><div><h2>All assignments</h2><p>{assignments.length} assignments in your workspace.</p></div></div>{assignments.map(a=><div className="assignment-card" key={a.id}><div className="assignment-main"><span className="subject-tag">COURSE</span><h3>{a.title}</h3><p>{a.description || "Complete and submit this assignment before the deadline."}</p></div><div className="assignment-action"><span className={a.status==="Submitted"?"pill ok":"pill"}>{a.status || "Pending"}</span>{a.status!=="Submitted"&&<label className="upload-btn">Upload<input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt" onChange={e=>upload(a,e)} hidden /></label>}</div></div>)}</section></>;
 }
 
 function AIChat() {
   const [q,setQ]=useState(""); const [messages,setMessages]=useState([{from:"ai",text:"Hi! I'm your CampusAI Tutor. Ask me a question about your course material and I'll help you work through it."}]); const [busy,setBusy]=useState(false);
-  const send=async()=>{if(!q.trim()||busy)return;const question=q.trim();setQ("");setMessages(m=>[...m,{from:"user",text:question}]);setBusy(true);try{const data=await api("/api/ai/ask",{method:"POST",body:JSON.stringify({question})});setMessages(m=>[...m,{from:"ai",text:data.answer||"I couldn't find enough course material to answer that yet.",sources:data.sources||[]}]);}catch(err){setMessages(m=>[...m,{from:"ai",text:\`I couldn't reach the AI service. \${err.message}\`}]);}finally{setBusy(false)}};
-  return <><Header title="CampusAI Tutor" subtitle="Your subject-aware academic assistant." /><section className="chat card"><div className="chat-top"><div className="ai-orb small">✦</div><div><b>CampusAI Tutor</b><small>Course-aware assistant</small></div><span className="online">● Online</span></div><div className="messages">{messages.map((m,i)=><div key={i} className={\`message \${m.from}\`}><div className="bubble">{m.text}</div>{m.sources?.length>0&&<div className="sources"><small>📚 Sources</small>{m.sources.slice(0,3).map((s,j)=><span key={j}>{typeof s==="string"?s:s.name||s.source||"Course material"}</span>)}</div>}</div>)}{busy&&<div className="message ai"><div className="bubble typing">● ● ●</div></div>}</div><div className="suggestions"><button onClick={()=>setQ("Explain this topic simply")}>Explain simply</button><button onClick={()=>setQ("Give me an example")}>Give an example</button><button onClick={()=>setQ("Quiz me on this topic")}>Quiz me</button></div><div className="composer"><input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="Ask a question about your course..." /><button className="send-btn" onClick={send}>↑</button></div></section></>;
+  const send=async()=>{if(!q.trim()||busy)return;const question=q.trim();setQ("");setMessages(m=>[...m,{from:"user",text:question}]);setBusy(true);try{const data=await api("/api/ai/ask",{method:"POST",body:JSON.stringify({question})});setMessages(m=>[...m,{from:"ai",text:data.answer||"I couldn't find enough course material to answer that yet.",sources:data.sources||[]}]);}catch(err){setMessages(m=>[...m,{from:"ai",text:`I couldn't reach the AI service. ${err.message}`}]);}finally{setBusy(false)}};
+  return <><Header title="CampusAI Tutor" subtitle="Your subject-aware academic assistant." /><section className="chat card"><div className="chat-top"><div className="ai-orb small">✦</div><div><b>CampusAI Tutor</b><small>Course-aware assistant</small></div><span className="online">● Online</span></div><div className="messages">{messages.map((m,i)=><div key={i} className={`message ${m.from}`}><div className="bubble">{m.text}</div>{m.sources?.length>0&&<div className="sources"><small>📚 Sources</small>{m.sources.slice(0,3).map((s,j)=><span key={j}>{typeof s==="string"?s:s.name||s.source||"Course material"}</span>)}</div>}</div>)}{busy&&<div className="message ai"><div className="bubble typing">● ● ●</div></div>}</div><div className="suggestions"><button onClick={()=>setQ("Explain this topic simply")}>Explain simply</button><button onClick={()=>setQ("Give me an example")}>Give an example</button><button onClick={()=>setQ("Quiz me on this topic")}>Quiz me</button></div><div className="composer"><input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="Ask a question about your course..." /><button className="send-btn" onClick={send}>↑</button></div></section></>;
 }
 
 function FacultyDashboard({setTab}) {
@@ -130,7 +130,7 @@ function FacultyDashboard({setTab}) {
 function FacultyAssignments() {
   const [title,setTitle]=useState("");const [description,setDescription]=useState("");const [subjectId,setSubjectId]=useState("1");const [items,setItems]=useState([]);const [msg,setMsg]=useState("");
   useEffect(()=>{api("/api/assignments").then(setItems).catch(()=>{});},[]);
-  const create=async()=>{if(!title.trim())return;try{const data=await api(\`/api/assignments?title=\${encodeURIComponent(title)}&description=\${encodeURIComponent(description)}&subject_id=\${subjectId}\`,{method:"POST"});setItems(i=>[data,...i]);setTitle("");setDescription("");setMsg("Assignment created successfully.");}catch(e){setMsg(e.message)}};
+  const create=async()=>{if(!title.trim())return;try{const data=await api(`/api/assignments?title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}&subject_id=${subjectId}`,{method:"POST"});setItems(i=>[data,...i]);setTitle("");setDescription("");setMsg("Assignment created successfully.");}catch(e){setMsg(e.message)}};
   return <><Header title="Assignments" subtitle="Create and manage coursework for your students." />{msg&&<div className="toast">{msg}</div>}<div className="dashboard-grid"><section className="card form-card"><span className="eyebrow">NEW ASSIGNMENT</span><h2>Create assignment</h2><label>Title<input value={title} onChange={e=>setTitle(e.target.value)} placeholder="e.g. Unit 2 — Probability Distributions"/></label><label>Description<textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="Add instructions for students..." rows="4"/></label><label>Subject ID<input value={subjectId} onChange={e=>setSubjectId(e.target.value)} type="number" min="1"/></label><button className="primary" onClick={create}>Create assignment →</button></section><section className="card section"><div className="section-head"><div><h2>Your assignments</h2><p>{items.length} active assignments.</p></div></div>{items.length?items.map(a=><AssignmentRow key={a.id} assignment={a}/>):<Empty title="Nothing here yet" text="Create an assignment to get started."/>}</section></div></>;
 }
 
