@@ -26,3 +26,14 @@ class Assignment(Base):
     subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id"))
     faculty_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     due_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+class Submission(Base):
+    __tablename__ = "submissions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    assignment_id: Mapped[int] = mapped_column(ForeignKey("assignments.id"), index=True)
+    student_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    file_key: Mapped[str] = mapped_column(String(500))
+    original_filename: Mapped[str] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(String(30), default="submitted")
+    submitted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    grade: Mapped[str | None] = mapped_column(String(20), nullable=True)
