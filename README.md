@@ -15,3 +15,7 @@ React + Tailwind CSS → FastAPI → PostgreSQL / Object Storage → AI/RAG serv
 
 ## Development status
 Phase 1: Foundation and project architecture.
+
+## Live Demo
+
+🚀 **CampusAI:** https://frontend-two-alpha-51.vercel.app
